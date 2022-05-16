@@ -6,7 +6,10 @@ const app = express();
 const port = 3000;
 
 app.get('/', (req, res) => {
-	res.send('Hello World!');
+	res.status(200).send({
+		status: 'ok',
+		message: 'Hello World!'
+	});
 });
 
 function downloadImage(url) {
@@ -58,9 +61,10 @@ app.get('/convert-to-img', (req, res) => {
 	});
 });
 
-app.post('/restore-image', (req, res) => {
+app.post('/restore-image', async (req, res) => {
 	// var url = req.params.url;
-	convertImageToBase64('./raw_photo.jpeg').then((response) => {
+	await new Promise(resolve => setTimeout(resolve, 5000));
+	convertImageToBase64('/home/ubuntu/297p_node/297p-relive-backend/raw_photo.jpeg').then((response) => {
 		res.status(200).send({
 			status: 'ok',
 			restored_image: response
