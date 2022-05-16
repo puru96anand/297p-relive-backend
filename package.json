@@ -1,0 +1,27 @@
+{
+  "name": "uci-cs297p-relive",
+  "version": "1.0.0",
+  "description": "CS297P Capstone at UC Irvine",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "devstart": "nodemon index.js"
+  },
+  "keywords": [
+    "uci",
+    "297p",
+    "capstone"
+  ],
+  "author": "purua",
+  "license": "ISC",
+  "dependencies": {
+    "base64-to-image": "^1.0.2",
+    "express": "^4.18.1",
+    "image-downloader": "^4.3.0",
+    "image-to-base64": "^2.2.0",
+    "python-shell": "^3.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.16"
+  }
+}
