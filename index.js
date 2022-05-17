@@ -108,7 +108,7 @@ app.post('/run-python', jsonParser, (req, res) => {
 
 		python.on('close', code => {
 			console.log(`child process close all stdio with code ${code}`);
-			convertImageToBase64('/home/ubuntu/297p_node/output/original.jpeg').then(base64Response => {
+			convertImageToBase64('/home/ubuntu/297p_node/output/final_output/original.jpeg').then(base64Response => {
 				res.status(200).send({
 					status: 'ok',
 					restored_image: base64Response
