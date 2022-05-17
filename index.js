@@ -1,9 +1,12 @@
 const express = require('express');
+const bodyParser = require('body-parser');
 const python = require('python-shell');
 const image_downloader = require('image-downloader');
 const base64ToImage = require('base64-to-image');
 const app = express();
 const port = 3000;
+var jsonParser = bodyParser.json();
+const {spawn} = require('child_process');
 
 app.get('/', (req, res) => {
 	res.status(200).send({
@@ -33,7 +36,7 @@ const base64String = "/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBw
 function convertBase64ToImage(base64String) {
 	return new Promise((resolve, reject) => {
 		const buffer = Buffer.from(base64String, "base64");
-		fs.writeFileSync("/Users/puru/Documents/UCI Classes/Q3 Spring 22/297P Capstone Project/Backend/new-path.jpg", buffer);
+		fs.writeFileSync("/home/ubuntu/297p_node/input/original.jpeg", buffer);
 		resolve();
 	});
 }
@@ -61,7 +64,7 @@ app.get('/convert-to-img', (req, res) => {
 	});
 });
 
-app.post('/restore-image', async (req, res) => {
+app.post('/restore-image', jsonParser, async (req, res) => {
 	// var url = req.params.url;
 	await new Promise(resolve => setTimeout(resolve, 5000));
 	convertImageToBase64('/home/ubuntu/297p_node/297p-relive-backend/raw_photo.jpeg').then((response) => {
@@ -73,6 +76,39 @@ app.post('/restore-image', async (req, res) => {
 		res.status(500).send({
 			status: 'error',
 			error: err
+		});
+	});
+});
+
+app.post('/run-python', jsonParser, (req, res) => {
+	if (fs.existsSync('/home/ubuntu/297p_node/input/')) {
+		fs.rmSync('/home/ubuntu/297p_node/input/', { recursive: true, force: true });
+	}
+	if (fs.existsSync('/home/ubuntu/297p_node/output/')) {
+		fs.rmSync('/home/ubuntu/297p_node/output/', { recursive: true, force: true });
+	}
+	fs.mkdirSync('/home/ubuntu/297p_node/input/');
+	fs.mkdirSync('/home/ubuntu/297p_node/output/');
+	convertBase64ToImage(req.body.image).then(() => {
+		var dataToSend = '';
+		const python = spawn('python3', ['/home/ubuntu/CS297P/run.py', '--input_folder', '/home/ubuntu/297p_node/input', '--output_folder', '/home/ubuntu/297p_node/output', '--GPU', '-1']);
+
+		python.stdout.on('data', data => {
+			console.log('Pipe data from python script ...');
+			dataToSend += data.toString();
+		});
+
+		python.on('close', code => {
+			console.log(`child process close all stdio with code ${code}`);
+			res.status(200).send({
+				status: 'ok',
+				data: dataToSend
+			});
+		});
+	}).catch(err => {
+		res.status(500).send({
+			status: 'error',
+			error: err.toString()
 		});
 	});
 });
