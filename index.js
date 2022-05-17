@@ -98,11 +98,27 @@ app.post('/run-python', jsonParser, (req, res) => {
 			dataToSend += data.toString();
 		});
 
+		python.stderr.on('data', errMessage => {
+			console.log(errMessage);
+			res.status(500).send({
+				status: 'error',
+				error: errMessage.toString()
+			});
+		});
+
 		python.on('close', code => {
 			console.log(`child process close all stdio with code ${code}`);
-			res.status(200).send({
-				status: 'ok',
-				data: dataToSend
+			convertImageToBase64('/home/ubuntu/297p_node/output/original.jpeg').then(base64Response => {
+				res.status(200).send({
+					status: 'ok',
+					restored_image: base64Response
+				});
+			}).catch(base64Error => {
+				console.log(base64Error);
+				res.status(500).send({
+					status: 'error',
+					error: base64Error.toString()
+				});
 			});
 		});
 	}).catch(err => {
